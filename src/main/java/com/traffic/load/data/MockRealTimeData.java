@@ -40,7 +40,7 @@ public class MockRealTimeData extends Thread {
         while (true) {
 
             String date = DateUtils.getTodayDate();
-            String baseActionTime = date + " " + StringUtils.fulFuill(random.nextInt(24) + "");
+            String baseActionTime = date + " " + StringUtils.fulFuill(random.nextInt(23) + "");
             baseActionTime = date + " " + StringUtils.fulFuill((Integer.parseInt(baseActionTime.split(" ")[1]) + 1) + "");
             String actionTime = baseActionTime + ":" + StringUtils.fulFuill(random.nextInt(60) + "") + ":" + StringUtils.fulFuill(random.nextInt(60) + "");
             String monitorId = StringUtils.fulFuill(4, random.nextInt(9) + "");
@@ -52,7 +52,7 @@ public class MockRealTimeData extends Thread {
             Information info = new Information(date,monitorId,actionTime,cameraId,car,speed,roadId,areaId);
             Gson gson= new Gson();
             producer.send(new ProducerRecord<String,String>("RoadRealTimeLog", gson.toJson(info)));
-            System.out.println("：："+date + "\t" + monitorId + "\t" + cameraId + "\t" + car + "\t" + actionTime + "\t" + speed + "\t" + roadId + "\t" + areaId);
+            //System.out.println("：："+date + "\t" + monitorId + "\t" + cameraId + "\t" + car + "\t" + actionTime + "\t" + speed + "\t" + roadId + "\t" + areaId);
             try {
                 Thread.sleep(300);
             } catch (InterruptedException e) {

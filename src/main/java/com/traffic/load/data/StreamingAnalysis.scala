@@ -25,11 +25,11 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
  * VERSION：V1.0
  */
 object StreamingAnalysis {
-  final val JDBC_URL = "jdbc:mysql://localhost:3306/traffic?setUnicode=true&characterEncoding=utf8&useSSL=false"
-  final val ZK_QUORUM = "172.16.29.106:2181"
+  final val JDBC_URL = "jdbc:mysql://master:3306/traffic?setUnicode=true&characterEncoding=utf8&useSSL=false"
+  final val ZK_QUORUM = "master:2181"
   final val GROUP_ID="RoadRealTimeLog"
-  final val MYSQL_PASSWORD="root"
-  final val MYSQL_USER_NAME="root"
+  final val MYSQL_PASSWORD="hive"
+  final val MYSQL_USER_NAME="NEU@pzj123456"
   final val HBASE_TABLE_NAME="real_time_log"
 
   def writeToMySQL(result: DataFrame, properties: Properties, table: String): Unit = {
@@ -92,6 +92,7 @@ object StreamingAnalysis {
       .builder
       .master("local[*]")
       .appName("StreamingAnalysis")
+      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
@@ -100,7 +101,8 @@ object StreamingAnalysis {
     //    properties.setProperty("password", "NEU@pzj123456") //（2）mysql密码
     properties.setProperty("user", MYSQL_USER_NAME)
     properties.setProperty("password", MYSQL_PASSWORD)
-    val DURATION = 10
+
+    val DURATION = 30
 
     val ssc = new StreamingContext(spark.sparkContext, Seconds(DURATION))
     val inputDataFrame = KafkaUtils.createStream(ssc, ZK_QUORUM
@@ -122,7 +124,7 @@ object StreamingAnalysis {
     infoDStream.foreachRDD(rdd => {
       // RDD为空时，无需再向下执行，否则在分区中还需要获取数据库连接（无用操作
       if (!rdd.isEmpty()) {
-
+        rdd.cache()
         rdd.foreachPartition((partition: Iterator[Info]) => {
           //每个分区都会创建一个task任务线程，分区多，资源利用率高
           //可通过参数配置分区数："--conf spark.default.parallelism=20"
