@@ -20,4 +20,6 @@ public class Information {
         this.road_id = road_id;
         this.area_id = area_id;
     }
+
+
 }

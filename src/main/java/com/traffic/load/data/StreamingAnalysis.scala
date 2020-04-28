@@ -25,11 +25,12 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
  * VERSION：V1.0
  */
 object StreamingAnalysis {
-  final val JDBC_URL = "jdbc:mysql://master:3306/traffic?setUnicode=true&characterEncoding=utf8&useSSL=false"
+
+  final val JDBC_URL = "jdbc:mysql://master:3306/Traffic?setUnicode=true&characterEncoding=utf8&useSSL=false"
   final val ZK_QUORUM = "master:2181"
   final val GROUP_ID="RoadRealTimeLog"
-  final val MYSQL_PASSWORD="hive"
-  final val MYSQL_USER_NAME="NEU@pzj123456"
+  final val MYSQL_PASSWORD = "NEU@pzj123456"
+  final val MYSQL_USER_NAME = "hive"
   final val HBASE_TABLE_NAME="real_time_log"
 
   def writeToMySQL(result: DataFrame, properties: Properties, table: String): Unit = {
@@ -65,7 +66,8 @@ object StreamingAnalysis {
         try {
           //设定行键（单词）
           val put = new Put(Bytes.toBytes(record.monitor_time + "_" + record.area_id + "_" + record.monitor_id))
-          //添加列值（单词个数）
+          //添加列值q:q
+
           //三个参数：列族、列、列值
           put.addColumn(Bytes.toBytes("cf1"),
             Bytes.toBytes("value"),
@@ -84,6 +86,7 @@ object StreamingAnalysis {
   }
 
   def main(args: Array[String]): Unit = {
+
     //创建线程池
     val executorService = Executors.newFixedThreadPool(1)
     executorService.submit(new MockRealTimeData)
@@ -97,8 +100,7 @@ object StreamingAnalysis {
     spark.sparkContext.setLogLevel("ERROR")
 
     val properties = new java.util.Properties()
-    //    properties.setProperty("user", "hive")
-    //    properties.setProperty("password", "NEU@pzj123456") //（2）mysql密码
+
     properties.setProperty("user", MYSQL_USER_NAME)
     properties.setProperty("password", MYSQL_PASSWORD)
 
@@ -130,16 +132,16 @@ object StreamingAnalysis {
           //可通过参数配置分区数："--conf spark.default.parallelism=20"
 
           if (partition.nonEmpty) {
+            //写到
             writeToHbase(partition)
           }
         })
         val infoDS: Dataset[Info] = rdd.toDS()
 
-        infoDS.show()
         infoDS.createOrReplaceTempView("t_info")
 
         //实时统计各牌照车辆的数量
-        //TODO 将license改成了area，不然还是按照完整的牌照进行分组
+
         val result1 = spark.sql(
           """SELECT
             |  NOW() AS monitor_time, substr(license,1,1) AS area,  COUNT(1) AS count
@@ -157,7 +159,7 @@ object StreamingAnalysis {
         //实时统计超速车辆
         val result2 = spark.sql(
           """SELECT
-            |  monitor_time,monitor_id,camera_id,license,speed,road_id,area_id
+            |  NOW() AS monitor_time,monitor_id,camera_id,license,speed,road_id,area_id
             |FROM
             |  t_info
             |WHERE
@@ -169,7 +171,7 @@ object StreamingAnalysis {
         //统计各个卡口的车流量具体信息
         val result3 = spark.sql(
           """SELECT
-            |   monitor_id, COUNT(1) AS count
+            |   NOW() AS monitor_time,monitor_id, COUNT(1) AS count
             |FROM
             |  t_info
             |GROUP BY
@@ -185,7 +187,7 @@ object StreamingAnalysis {
         //实时统计各个区域的车辆数
         val result4 = spark.sql(
           """SELECT
-            |  area_id,  COUNT(1) AS count
+            | NOW() AS monitor_time, area_id,  COUNT(1) AS count
             |FROM
             |  t_info
             |GROUP BY
@@ -201,7 +203,7 @@ object StreamingAnalysis {
         //实时统计速度最快的前10辆车
         val result5 = spark.sql(
           """SELECT
-            |  monitor_id,license, monitor_time, speed
+            |  monitor_id,license, NOW() AS monitor_time, speed
             |FROM
             |  t_info
             |ORDER BY

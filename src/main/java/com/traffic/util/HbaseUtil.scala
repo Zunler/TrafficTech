@@ -19,11 +19,11 @@ object HbaseUtil extends Serializable {
     synchronized {
       if (connection == null || connection.isClosed() || num == 0) {
         connection = ConnectionFactory.createConnection(conf)
-        println("conn is created! " + Thread.currentThread().getName())
+        //println("conn is created! " + Thread.currentThread().getName())
       }
       //每请求一次连接，计数器加一
       num = num + 1
-      println("request conn num: " + num + " " + Thread.currentThread().getName())
+      //println("request conn num: " + num + " " + Thread.currentThread().getName())
     }
     connection
   }
@@ -32,16 +32,16 @@ object HbaseUtil extends Serializable {
   def closeHbaseConn(): Unit = {
     synchronized {
       if (num <= 0) {
-        println("no conn to close!")
+       // println("no conn to close!")
         return
       }
       //每请求一次关闭连接，计数器减一
       num = num - 1
-      println("request close num: " + num + " " + Thread.currentThread().getName())
+     // println("request close num: " + num + " " + Thread.currentThread().getName())
       //请求连接计数器为0时关闭连接
       if (num == 0 && connection != null && !connection.isClosed()) {
         connection.close()
-        println("conn is closed! " + Thread.currentThread().getName())
+       // println("conn is closed! " + Thread.currentThread().getName())
       }
     }
   }

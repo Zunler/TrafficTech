@@ -35,7 +35,7 @@ SparkStreaming
 
 3.  所有车辆速度最快的前10名
 
-   monitor_top_ten：id, monitor_time,monitor_id，car，speed MonitorTopTen
+   monitor_top_ten：id, monitor_time,monitor_id，license，speed MonitorTopTen
 
 4. 统计各牌照车辆的数量
 

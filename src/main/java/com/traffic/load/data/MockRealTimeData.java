@@ -35,6 +35,7 @@ public class MockRealTimeData extends Thread {
         return props;
     }
 
+    @Override
     public void run() {
         System.out.println("正在生产数据...");
         while (true) {
